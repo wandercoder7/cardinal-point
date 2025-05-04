@@ -29,13 +29,13 @@ def calculate_signals_for_ticker(data):
         'EMA 200': ema_200_signal_df['entry_level'].iloc[-1] if not ema_200_signal_df.empty and ema_200_signal_df['signal'].iloc[-1] else None,
     }
 
-def show_signals(stock_tickers, selected_timeframes):
+def show_signals(stock_tickers, selected_timeframes, as_of_date):
     fetched_data = {}
     tickers_with_signals_data = []
 
     for ticker in stock_tickers:
         signals_for_ticker, latest_close_1d, all_data_fetched = process_ticker_signals(
-            ticker, selected_timeframes, fetched_data
+            ticker, selected_timeframes, fetched_data, as_of_date
         )
         if all_data_fetched and any(
             signals_for_ticker.get(f'{tf} Signals') != "No Signal" for tf in selected_timeframes
@@ -47,7 +47,7 @@ def show_signals(stock_tickers, selected_timeframes):
     display_signals_summary(tickers_with_signals_data, selected_timeframes, fetched_data)
 
 
-def process_ticker_signals(ticker, selected_timeframes, fetched_data):
+def process_ticker_signals(ticker, selected_timeframes, fetched_data, as_of_date):
     signals_for_ticker = {'Ticker': ticker}
     all_data_fetched = True
     latest_close_1d = None
@@ -57,7 +57,7 @@ def process_ticker_signals(ticker, selected_timeframes, fetched_data):
         if not timeframe_value:
             continue
 
-        stock_data = fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data)
+        stock_data = fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data, as_of_date)
         if stock_data is None:
             all_data_fetched = False
             break
@@ -72,9 +72,9 @@ def process_ticker_signals(ticker, selected_timeframes, fetched_data):
     return signals_for_ticker, latest_close_1d, all_data_fetched
 
 
-def fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data):
+def fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data, as_of_date):
     if ticker not in fetched_data or timeframe_value not in fetched_data[ticker]:
-        stock_data = fetch_stock_data(ticker, period=fetch_period, interval=timeframe_value)
+        stock_data = fetch_stock_data(ticker, period=fetch_period, interval=timeframe_value, as_of_date=as_of_date)
         if stock_data is not None:
             if ticker not in fetched_data:
                 fetched_data[ticker] = {}

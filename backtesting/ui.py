@@ -36,9 +36,9 @@ def display_backtesting_results(trades_df, ticker, strategy_name, start_date, en
     st.subheader(f"Backtesting Results for {ticker} using {strategy_name} ({start_date} to {end_date})")
     if not trades_df.empty:
         num_trades = len(trades_df)
-        winning_trades = len(trades_df[trades_df['profit_loss'] > 0])
+        winning_trades = len(trades_df[trades_df['profit_loss_percentage'] > 0])
         win_rate = (winning_trades / num_trades) * 100 if num_trades > 0 else 0
-        average_profit_loss = trades_df['profit_loss'].mean() * 100
+        average_profit_loss = trades_df['profit_loss_percentage'].mean() * 100
         st.metric("Total Trades", num_trades)
         st.metric("Win Rate (%)", f"{win_rate:.2f}")
         st.metric("Average Profit/Loss per Trade (%)", f"{average_profit_loss:.2f}")

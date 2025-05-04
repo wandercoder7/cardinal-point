@@ -13,9 +13,14 @@ from backtesting.ui import run_backtest
 if __name__ == '__main__':
     st.title("Check Trend")
 
-    app_mode, stock_tickers, backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option, run_backtest_button, selected_analysis_timeframes = sidebar()
+    app_mode = st.sidebar.radio(
+        "Select Mode",
+        ["Show Signals", "Backtesting"]
+    )
 
     if app_mode == "Backtesting":
+        stock_tickers, backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option, run_backtest_button, selected_analysis_timeframes = sidebar(app_mode)
         run_backtest(backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option)
     elif app_mode == "Show Signals":
-        show_signals(stock_tickers, selected_analysis_timeframes)
+        stock_tickers, selected_analysis_timeframes, as_of_date = sidebar(app_mode)
+        show_signals(stock_tickers, selected_analysis_timeframes, as_of_date)

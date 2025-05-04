@@ -1,4 +1,4 @@
-from indicators.technical_indicators import calculate_sma, calculate_ema, calculate_rsi, calculate_macd
+from indicators.technical_indicators import calculate_ema, calculate_sma, calculate_rsi, calculate_macd
 import pandas as pd
 
 def calculate_indicators(data: pd.DataFrame):
