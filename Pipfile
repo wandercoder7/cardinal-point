@@ -7,9 +7,9 @@ name = "pypi"
 yfinance = "*"
 pandas = "*"
 ta = "*"
-streamlit = "*"
 plotly = "*"
 scipy = "*"
+streamlit = "*"
 
 [dev-packages]
 

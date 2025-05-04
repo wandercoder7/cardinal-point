@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-from utils.constants import nifty_50_tickers_yfinance, nifty_500_tickers_yfinance
+from utils.constants import nifty_50_tickers_yfinance
 
 def sidebar_show_signals():
     selected_timeframes = st.sidebar.multiselect(
@@ -16,8 +16,8 @@ def sidebar_show_signals():
     )
     stock_tickers_show_signals = st.sidebar.multiselect(
         "Select Indian Stocks for Analysis",
-        nifty_500_tickers_yfinance,
-        default=nifty_500_tickers_yfinance
+        nifty_50_tickers_yfinance,
+        default=nifty_50_tickers_yfinance
         # default=["TATAMOTORS.NS"]
     )
     
