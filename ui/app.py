@@ -1,6 +1,8 @@
 import streamlit as st
 import sys
 import os
+from datetime import datetime
+import pytz
 
 # Get the absolute path to the project's root directory
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,7 +13,8 @@ from ui.show_signals import show_signals
 from backtesting.ui import run_backtest
 
 if __name__ == '__main__':
-    st.title("Check Trend")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
+    st.title(f"Check Trend ({current_time})")
 
     app_mode = st.sidebar.radio(
         "Select Mode",
