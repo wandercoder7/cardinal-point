@@ -2,6 +2,9 @@ import yfinance as yf
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
+from utils.date_utils import getCurrentTime
+from logging import getLogger
+log = getLogger(__name__)
 
 @st.cache_data
 def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
@@ -29,7 +32,7 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
             st.warning(f"No data found for {ticker}.")
             return None
         # Remove incomplete intervals
-        now = datetime.now()
+        now = getCurrentTime()
         if interval == "1d":
             # Remove today's data if the current time is before 4 PM
             market_close_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
@@ -52,6 +55,8 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         return data
     except Exception as e:
         st.error(f"Error fetching data for {ticker}: {e}")
+        log.error(f"Could not find 'Close' data for {ticker}: {e}")
+
         return None
 
 def get_start_date(period, as_of_date):
