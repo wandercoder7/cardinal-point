@@ -2,7 +2,6 @@ import streamlit as st
 import sys
 import os
 from datetime import datetime
-from utils.date_utils import getCurrentTime
 
 # Get the absolute path to the project's root directory
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +10,7 @@ sys.path.append(ROOT_DIR)
 from ui.components import sidebar
 from ui.show_signals import show_signals
 from backtesting.ui import run_backtest
+from utils.date_utils import getCurrentTime
 
 if __name__ == '__main__':
     current_time = getCurrentTime()
