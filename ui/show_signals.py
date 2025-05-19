@@ -2,32 +2,29 @@ import streamlit as st
 import pandas as pd
 from utils.data_fetching import fetch_stock_data
 from utils.calculations import calculate_indicators
-from strategies.swing_strategies import ema_crossover_long, sma_price_crossover_long, rsi_oversold_reversal_long, macd_crossover_long,ema_200_weekly_breakout
 from ui.components import display_indicator_values, display_stock_chart
 from ui.signal_display import display_signals_table
+from config.strategy_config import STRATEGY_CONFIG
 
 TIMEFRAMES = {'1 Day': ('1d', '1y'), '1 Week': ('1wk', '10y'), '1 Month': ('1mo', '10y')}
 
-def calculate_signals_for_ticker(data):
-    ema_signal_df = ema_crossover_long(data)
-    sma_signal_df = sma_price_crossover_long(data)
-    rsi_signal_df = rsi_oversold_reversal_long(data)
-    macd_signal_df = macd_crossover_long(data)
-    ema_200_signal_df = ema_200_weekly_breakout(data)
-    breakout_signals = pd.DataFrame({
-        'EMA Crossover': ema_signal_df['signal'],
-        'SMA Price Crossover': sma_signal_df['signal'],
-        'RSI Oversold Reversal': rsi_signal_df['signal'],
-        'MACD Crossover': macd_signal_df['signal'],
-        'EMA 200': ema_200_signal_df['signal'],
-    }, index=data.index)
-    return breakout_signals, {
-        'EMA Crossover': ema_signal_df['entry_level'].iloc[-1] if not ema_signal_df.empty and ema_signal_df['signal'].iloc[-1] else None,
-        'SMA Price Crossover': sma_signal_df['entry_level'].iloc[-1] if not sma_signal_df.empty and sma_signal_df['signal'].iloc[-1] else None,
-        'RSI Oversold Reversal': rsi_signal_df['entry_level'].iloc[-1] if not rsi_signal_df.empty and rsi_signal_df['signal'].iloc[-1] else None,
-        'MACD Crossover': macd_signal_df['entry_level'].iloc[-1] if not macd_signal_df.empty and macd_signal_df['signal'].iloc[-1] else None,
-        'EMA 200': ema_200_signal_df['entry_level'].iloc[-1] if not ema_200_signal_df.empty and ema_200_signal_df['signal'].iloc[-1] else None,
-    }
+def calculate_signals_for_ticker(data, timeframe):
+    """Calculate signals based on configured strategies for the timeframe"""
+    if timeframe not in STRATEGY_CONFIG:
+        return pd.DataFrame(), {}
+    
+    all_signals = pd.DataFrame(index=data.index)
+    entry_levels = {}
+    
+    for strategy in STRATEGY_CONFIG[timeframe]:
+        strategy_func = strategy['function']
+        strategy_name = strategy['name']
+        signal_df = strategy_func(data)
+        all_signals[strategy_name] = signal_df['signal']
+        if signal_df['signal'].iloc[-1]:
+            entry_levels[strategy_name] = signal_df['entry_level'].iloc[-1]
+    
+    return all_signals, entry_levels
 
 def show_signals(stock_tickers, selected_timeframes, as_of_date):
     fetched_data = {}
@@ -46,13 +43,15 @@ def show_signals(stock_tickers, selected_timeframes, as_of_date):
 
     display_signals_summary(tickers_with_signals_data, selected_timeframes, fetched_data)
 
-
 def process_ticker_signals(ticker, selected_timeframes, fetched_data, as_of_date):
     signals_for_ticker = {'Ticker': ticker}
     all_data_fetched = True
     latest_close_1d = None
 
     for timeframe_name in selected_timeframes:
+        if timeframe_name not in STRATEGY_CONFIG:
+            continue
+
         timeframe_value, fetch_period = TIMEFRAMES.get(timeframe_name, ('1d', '6mo'))
         if not timeframe_value:
             continue
@@ -63,14 +62,13 @@ def process_ticker_signals(ticker, selected_timeframes, fetched_data, as_of_date
             break
 
         data = calculate_indicators(stock_data.copy())
-        breakout_signals, _ = calculate_signals_for_ticker(data)
+        breakout_signals, entry_levels = calculate_signals_for_ticker(data, timeframe_name)
         latest_signal = breakout_signals.tail(1)
 
         latest_close_1d = update_latest_close(data, timeframe_name, latest_close_1d)
         update_signals_for_ticker(signals_for_ticker, timeframe_name, latest_signal)
 
     return signals_for_ticker, latest_close_1d, all_data_fetched
-
 
 def fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data, as_of_date):
     if ticker not in fetched_data or timeframe_value not in fetched_data[ticker]:
@@ -82,7 +80,6 @@ def fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data,
         return stock_data
     return fetched_data[ticker][timeframe_value]
 
-
 def update_latest_close(data, timeframe_name, latest_close_1d):
     if timeframe_name == '1 Day' and not data.empty:
         return f"{data['Close'].iloc[-1]:.2f}"
@@ -90,20 +87,12 @@ def update_latest_close(data, timeframe_name, latest_close_1d):
         return "N/A"
     return latest_close_1d
 
-
 def update_signals_for_ticker(signals_for_ticker, timeframe_name, latest_signal):
     detected_signals = []
     if not latest_signal.empty and latest_signal.any(axis=1).iloc[0]:
-        if latest_signal['EMA Crossover'].iloc[0]:
-            detected_signals.append("EMA")
-        if latest_signal['SMA Price Crossover'].iloc[0]:
-            detected_signals.append("SMA")
-        if latest_signal['RSI Oversold Reversal'].iloc[0]:
-            detected_signals.append("RSI")
-        if latest_signal['MACD Crossover'].iloc[0]:
-            detected_signals.append("MACD")
-        if latest_signal['EMA 200'].iloc[0]:
-            detected_signals.append("EMA 200")
+        for strategy_name in latest_signal.columns:
+            if latest_signal[strategy_name].iloc[0]:
+                detected_signals.append(strategy_name)
 
     signals_for_ticker[f'{timeframe_name} Signals'] = ', '.join(detected_signals) if detected_signals else "No Signal"
     if not latest_signal.empty:
@@ -111,7 +100,6 @@ def update_signals_for_ticker(signals_for_ticker, timeframe_name, latest_signal)
         signals_for_ticker[f'{timeframe_name} Signal Date'] = signal_dates[-1] if not signal_dates.empty else "N/A"
     else:
         signals_for_ticker[f'{timeframe_name} Signal Date'] = "N/A"
-
 
 def display_signals_summary(tickers_with_signals_data, selected_timeframes, fetched_data):
     if not tickers_with_signals_data:
@@ -123,7 +111,6 @@ def display_signals_summary(tickers_with_signals_data, selected_timeframes, fetc
         if selected_ticker_timeframe and selected_ticker_timeframe[0]:
             display_selected_ticker_chart(selected_ticker_timeframe, fetched_data)
 
-
 def display_selected_ticker_chart(selected_ticker_timeframe, fetched_data):
     selected_ticker = selected_ticker_timeframe[0]
     selected_tf_name = selected_ticker_timeframe[1]
@@ -133,7 +120,7 @@ def display_selected_ticker_chart(selected_ticker_timeframe, fetched_data):
     if selected_ticker in fetched_data and timeframe_value in fetched_data[selected_ticker]:
         data_selected = fetched_data[selected_ticker][timeframe_value].copy()
         data_selected = calculate_indicators(data_selected)
-        breakout_signals_selected, latest_entry_levels_selected = calculate_signals_for_ticker(data_selected)
+        breakout_signals_selected, latest_entry_levels_selected = calculate_signals_for_ticker(data_selected, selected_tf_name)
         display_stock_chart(data_selected, breakout_signals_selected, latest_entry_levels_selected)
         display_indicator_values(data_selected, selected_ticker)
     else:

@@ -3,11 +3,12 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 from utils.constants import nifty_50_tickers_yfinance
+from config.strategy_config import STRATEGY_CONFIG
 
 def sidebar_show_signals():
     selected_timeframes = st.sidebar.multiselect(
         "Select Timeframes for Analysis",
-        ['1 Day', '1 Week', '1 Month'],
+        list(STRATEGY_CONFIG.keys()),
         default=['1 Week']
     )
     as_of_date = st.sidebar.date_input(
