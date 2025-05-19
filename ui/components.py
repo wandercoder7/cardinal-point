@@ -85,6 +85,11 @@ def get_signal_messages(latest_signals, latest_entry_levels):
         entry_prices['MACD Crossover'] = entry_price
         reasons.append(f"MACD line crossed above Signal line (Entry: {'{:.2f}'.format(entry_price) if entry_price is not None else 'N/A'})")
     
+    if 'Fibonacci Retracement' in latest_signals.columns and latest_signals['Fibonacci Retracement'].iloc[0]:
+        entry_price = latest_entry_levels.get('Fibonacci Retracement')
+        entry_prices['Fibonacci Retracement'] = entry_price
+        reasons.append(f"Price retraced to 50% Fibonacci level (Entry: {'{:.2f}'.format(entry_price) if entry_price is not None else 'N/A'})")
+    
     return reasons, entry_prices
 
 def calculate_exit_levels(signal_type, entry_price, current_low):
@@ -130,8 +135,6 @@ def display_latest_signals(data, breakout_signals, latest_entry_levels):
             st.info("Potential exit levels could not be calculated.")
     else:
         st.info("No breakout signals based on the selected strategies.")
-
-
 
 def create_price_subplot(fig, data, breakout_signals):
     fig.add_trace(go.Candlestick(x=data.index, open=data['Open'], high=data['High'],
