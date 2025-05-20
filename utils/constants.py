@@ -56,3 +56,5 @@ def get_nifty_200_tickers():
     return [f"{ticker}.NS" for ticker in df['Symbol'].tolist()]
 
 nifty_200_tickers_yfinance = get_nifty_200_tickers()
+
+TIMEFRAMES = {'1 Day': ('1d', '1y'), '1 Week': ('1wk', '10y'), '1 Month': ('1mo', '10y')}

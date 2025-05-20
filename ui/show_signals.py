@@ -5,8 +5,7 @@ from utils.calculations import calculate_indicators
 from ui.components import display_indicator_values, display_stock_chart
 from ui.signal_display import display_signals_table
 from config.strategy_config import STRATEGY_CONFIG
-
-TIMEFRAMES = {'1 Day': ('1d', '1y'), '1 Week': ('1wk', '10y'), '1 Month': ('1mo', '10y')}
+from utils.constants import TIMEFRAMES
 
 def calculate_signals_for_ticker(data, timeframe):
     """Calculate signals based on configured strategies for the timeframe"""
