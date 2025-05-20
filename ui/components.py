@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-from utils.constants import nifty_50_tickers_yfinance
+from utils.constants import nifty_50_tickers_yfinance, nifty_200_tickers_yfinance
 from config.strategy_config import STRATEGY_CONFIG
 
 def sidebar_show_signals():
@@ -17,8 +17,8 @@ def sidebar_show_signals():
     )
     stock_tickers_show_signals = st.sidebar.multiselect(
         "Select Indian Stocks for Analysis",
-        nifty_50_tickers_yfinance,
-        default=nifty_50_tickers_yfinance
+        nifty_200_tickers_yfinance,
+        default=nifty_200_tickers_yfinance
         # default=["TATAMOTORS.NS"]
     )
     
@@ -160,7 +160,7 @@ def create_macd_subplot(fig, data):
                         marker_color=data['Histogram'].apply(lambda x: 'green' if x > 0 else 'red')), row=3, col=1)
 
 def add_exit_levels(fig, signal_type, breakout_signals, latest_entry_levels, data):
-    if breakout_signals[signal_type].iloc[-1]:
+    if signal_type in breakout_signals.index and breakout_signals[signal_type].iloc[-1]:
         entry = latest_entry_levels.get(signal_type)
         low = data.iloc[-1]['Low']
         if entry is not None and low is not None:

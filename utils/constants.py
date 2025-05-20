@@ -51,3 +51,8 @@ nifty_50_tickers_yfinance = [
     "WIPRO.NS",
     "SHRIRAMFIN.NS"
 ]
+def get_nifty_200_tickers():
+    df = pd.read_csv('data/raw/ind_nifty200list.csv')
+    return [f"{ticker}.NS" for ticker in df['Symbol'].tolist()]
+
+nifty_200_tickers_yfinance = get_nifty_200_tickers()
