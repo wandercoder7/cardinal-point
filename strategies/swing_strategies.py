@@ -40,16 +40,26 @@ def macd_crossover_long(data: pd.DataFrame) -> pd.DataFrame:
 
 def ema_200_weekly_breakout(data: pd.DataFrame):
     """
-    Generates a buy signal if the last weekly close is above the 200-week EMA.
+    Generates a buy signal if the last weekly close is above the 200-week EMA,
+    but only if we have at least 200 data points.
     """
+    # Check if we have enough data points
+    if len(data) < 200:
+        return pd.DataFrame({
+            'signal': pd.Series(False, index=data.index),
+            'entry_level': pd.Series(index=data.index, dtype=float),
+            'EMA_200': data['EMA_200']
+        })
+    
     open = data['Open'].iloc[-1]
     close = data['Close'].iloc[-1]
     low = data['Low'].iloc[-1]
     ema_200 = data['EMA_200'].iloc[-1]
     signal = (close > ema_200) and (open <= ema_200 or low <= ema_200) and (close > open)
-    # To align with the existing flow, create a 'signal' column with the last value applied to the last row
+    
     data['signal'] = False
     if signal:
         data.loc[data.index[-1], 'signal'] = True
     data['entry_level'] = data['Close'].where(data['signal'])
+    
     return data[['signal', 'entry_level', 'EMA_200']]
