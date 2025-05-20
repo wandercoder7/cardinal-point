@@ -50,10 +50,10 @@ weekly_strategies = [
     RSI_OVERSOLD_REVERSAL,
     MACD_CROSSOVER,
     EMA_200_BREAKOUT,
-    FIBONACCI_RETRACEMENT
+    # FIBONACCI_RETRACEMENT
 ]
 
-strategy_config = {
+STRATEGY_CONFIG = {
     '1 Day': daily_strategies,
     '1 Week': weekly_strategies,
     # '1 Month': [] # Commented out as no strategies configured for monthly timeframe
