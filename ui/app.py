@@ -21,7 +21,8 @@ if __name__ == '__main__':
 
     app_mode = st.sidebar.radio(
         "Select Mode",
-        ["Show Signals", "Backtesting", "Fibonacci Analysis"]
+        ["Show Signals", "Backtesting", "Fibonacci Analysis"],
+        index=2
     )
 
     if app_mode == "Backtesting":
