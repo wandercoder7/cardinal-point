@@ -24,8 +24,10 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         data = None
         if(as_of_date is not None):
             start = get_start_date(period, as_of_date)
+            log.info(f"fetching data for {ticker} from {start} to {as_of_date} with interval {interval}")
             data = yf.download(ticker, start=start, end=as_of_date, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
         else:
+            log.info(f"fetching data for {ticker} with period {period} and interval {interval}")
             data = yf.download(ticker, period=period, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
 
         if data.empty:
