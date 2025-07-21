@@ -43,7 +43,8 @@ daily_strategies = [
     EMA_CROSSOVER,
     SMA_PRICE_CROSSOVER,
     RSI_OVERSOLD_REVERSAL,
-    MACD_CROSSOVER
+    MACD_CROSSOVER,
+    EMA_200_BREAKOUT,
 ]
 
 weekly_strategies = [
