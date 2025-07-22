@@ -40,10 +40,10 @@ FIBONACCI_RETRACEMENT = {
 
 # Strategy configuration by timeframe
 daily_strategies = [
-    EMA_CROSSOVER,
-    SMA_PRICE_CROSSOVER,
-    RSI_OVERSOLD_REVERSAL,
-    MACD_CROSSOVER,
+    # EMA_CROSSOVER,
+    # SMA_PRICE_CROSSOVER,
+    # RSI_OVERSOLD_REVERSAL,
+    # MACD_CROSSOVER,
     EMA_200_BREAKOUT,
 ]
 

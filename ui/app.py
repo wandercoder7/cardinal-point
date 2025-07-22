@@ -8,6 +8,7 @@ import pytz
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(ROOT_DIR)
 
+import pandas as pd
 from ui.components import sidebar
 from ui.show_signals import show_signals
 from backtesting.ui import run_backtest
@@ -21,8 +22,8 @@ if __name__ == '__main__':
 
     app_mode = st.sidebar.radio(
         "Select Mode",
-        ["Show Signals", "Backtesting", "Fibonacci Analysis"],
-        index=2
+        ["Show Signals", "Backtesting", "Fibonacci Analysis", "View Computed Data"],
+        index=3
     )
 
     if app_mode == "Backtesting":
@@ -36,3 +37,12 @@ if __name__ == '__main__':
         timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
         from ui.fibonacci_analysis import show_fibonacci_analysis
         show_fibonacci_analysis(ticker, timeframe)
+    elif app_mode == "View Computed Data":
+        ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
+        timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
+        as_of_date = st.sidebar.date_input(
+            "Analysis as of Date",
+            value=pd.Timestamp.now().date()
+        )
+        from ui.computed_data import show_computed_data
+        show_computed_data(ticker, timeframe, as_of_date)
