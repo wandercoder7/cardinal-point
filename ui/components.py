@@ -9,7 +9,7 @@ def sidebar_show_signals():
     selected_timeframes = st.sidebar.multiselect(
         "Select Timeframes for Analysis",
         list(STRATEGY_CONFIG.keys()),
-        default=['1 Week']
+        default=['1 Day']
     )
     as_of_date = st.sidebar.date_input(
         "Analysis as of Date",
