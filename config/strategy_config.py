@@ -48,8 +48,8 @@ daily_strategies = [
 ]
 
 weekly_strategies = [
-    RSI_OVERSOLD_REVERSAL,
-    MACD_CROSSOVER,
+    # RSI_OVERSOLD_REVERSAL,
+    # MACD_CROSSOVER,
     EMA_200_BREAKOUT,
     # FIBONACCI_RETRACEMENT
 ]
