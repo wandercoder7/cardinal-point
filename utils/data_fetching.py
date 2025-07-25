@@ -3,11 +3,11 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
 from utils.date_utils import get_current_time
-import logging
+from utils.logger import get_logger
 from utils.date_utils import get_start_date, is_market_time, get_end_date
+import traceback
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 @st.cache_data
 def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
@@ -48,12 +48,13 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         return data
     except Exception as e:
         st.error(f"Error fetching data for {ticker}: {e}")
-        log.error(f"Could not find 'Close' data for {ticker}: {e}")
+        log.error(f"Could not find 'Close' data for {ticker}: {traceback.format_exc()}")
 
         return None
     
 def cleanup_data(interval, data):
     # Remove incomplete intervals
+    log.info(f"Cleaning up data for interval {interval}")
     now = get_current_time()
     if interval == "1d":
         # Remove today's data if the current time is before 4 PM
