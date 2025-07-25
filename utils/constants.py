@@ -57,4 +57,5 @@ def get_nifty_200_tickers():
 
 nifty_200_tickers_yfinance = get_nifty_200_tickers()
 
+# get interval, period for the timeframes
 TIMEFRAMES = {'1 Day': ('1d', '2y'), '1 Week': ('1wk', '10y'), '1 Month': ('1mo', '10y')}

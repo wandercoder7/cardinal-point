@@ -51,11 +51,11 @@ def process_ticker_signals(ticker, selected_timeframes, fetched_data, as_of_date
         if timeframe_name not in STRATEGY_CONFIG:
             continue
 
-        timeframe_value, fetch_period = TIMEFRAMES.get(timeframe_name, ('1d', '6mo'))
-        if not timeframe_value:
+        interval, period = TIMEFRAMES.get(timeframe_name, ('1d', '6mo'))
+        if not interval:
             continue
 
-        stock_data = fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data, as_of_date)
+        stock_data = fetch_or_get_stock_data(ticker, interval, period, fetched_data, as_of_date)
         if stock_data is None:
             all_data_fetched = False
             break
@@ -69,15 +69,15 @@ def process_ticker_signals(ticker, selected_timeframes, fetched_data, as_of_date
 
     return signals_for_ticker, latest_close_1d, all_data_fetched
 
-def fetch_or_get_stock_data(ticker, timeframe_value, fetch_period, fetched_data, as_of_date):
-    if ticker not in fetched_data or timeframe_value not in fetched_data[ticker]:
-        stock_data = fetch_stock_data(ticker, period=fetch_period, interval=timeframe_value, as_of_date=as_of_date)
+def fetch_or_get_stock_data(ticker, interval, period, fetched_data, as_of_date):
+    if ticker not in fetched_data or interval not in fetched_data[ticker]:
+        stock_data = fetch_stock_data(ticker, period=period, interval=interval, as_of_date=as_of_date)
         if stock_data is not None:
             if ticker not in fetched_data:
                 fetched_data[ticker] = {}
-            fetched_data[ticker][timeframe_value] = stock_data.copy()
+            fetched_data[ticker][interval] = stock_data.copy()
         return stock_data
-    return fetched_data[ticker][timeframe_value]
+    return fetched_data[ticker][interval]
 
 def update_latest_close(data, timeframe_name, latest_close_1d):
     if timeframe_name == '1 Day' and not data.empty:
