@@ -12,12 +12,12 @@ import pandas as pd
 from ui.components import sidebar
 from ui.show_signals import show_signals
 from backtesting.ui import run_backtest
-from utils.date_utils import getCurrentTime
+from utils.date_utils import get_current_time
 from utils.constants import nifty_200_tickers_yfinance
 from config.strategy_config import STRATEGY_CONFIG
 
 if __name__ == '__main__':
-    current_time = getCurrentTime()
+    current_time = get_current_time()
     st.title(f"Check Trend ({current_time})")
 
     app_mode = st.sidebar.radio(

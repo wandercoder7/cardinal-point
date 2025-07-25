@@ -2,8 +2,9 @@ import yfinance as yf
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
-from utils.date_utils import getCurrentTime
+from utils.date_utils import get_current_time
 import logging
+from utils.date_utils import get_start_date, is_market_time, get_end_date
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         data = None
         if(as_of_date is not None):
             start = get_start_date(period, as_of_date)
-            end = as_of_date + timedelta(days=1)  # Include the as_of_date in the range
+            end = get_end_date(as_of_date, interval)
             log.info(f"fetching data for {ticker} from {start} to {as_of_date} with interval {interval}")
             data = yf.download(ticker, start=start, end=end, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
         else:
@@ -36,25 +37,11 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         if data.empty:
             st.warning(f"No data found for {ticker}.")
             return None
-        # Remove incomplete intervals
-        now = getCurrentTime()
-        if interval == "1d":
-            # Remove today's data if the current time is before 4 PM
-            market_start_time = now.replace(hour=9, minute=0, second=0, microsecond=0)
-            market_close_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
-            if now > market_start_time and now < market_close_time and data.index[-1].date() == now.date():
-                data = data.iloc[:-1]
-        elif interval == "1wk":
-            # Remove the current week's data if today is not Monday
-            if now.weekday() != 0:  # Monday is 0
-                last_complete_week = now - timedelta(days=now.weekday() + 1)
-                data = data[data.index < last_complete_week]
+       
+        # data = cleanup_data(interval, data)
 
         if 'Close' in data.columns:
-            if 'Adj Close' in data.columns:
-                data = data[['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']].astype(float)
-            else:
-                data = data[['Open', 'High', 'Low', 'Close', 'Volume']].astype(float)
+            data = cleanup_columns(data)
         else:
             st.error(f"Could not find 'Close' data for {ticker}.")
             return None
@@ -64,18 +51,24 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
         log.error(f"Could not find 'Close' data for {ticker}: {e}")
 
         return None
+    
+def cleanup_data(interval, data):
+    # Remove incomplete intervals
+    now = get_current_time()
+    if interval == "1d":
+        # Remove today's data if the current time is before 4 PM
+        if is_market_time(now) and data.index[-1].date() == now.date():
+            data = data.iloc[:-1]
+    elif interval == "1wk":
+        # Remove the current week's data if today is not Monday
+        if now.weekday() != 0:  # Monday is 0
+            last_complete_week = now - timedelta(days=now.weekday() + 1)
+            data = data[data.index < last_complete_week]
+    return data
 
-def get_start_date(period, as_of_date):
-    start = as_of_date
-    # Adjust the start based on the as_of_date and period
-    if(period == "1y"):
-        start = start - timedelta(days=365)
-    elif(period == "2y"):
-        start = start - timedelta(days=730)
-    elif(period == "6mo"):
-        start = start - timedelta(days=183)
-    elif(period == "5y"):
-        start = start - timedelta(days=1825)
-    elif(period == "10y"):  
-        start = start - timedelta(days=3650)
-    return start
+def cleanup_columns(data):
+    if 'Adj Close' in data.columns:
+        data = data[['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']].astype(float)
+    else:
+        data = data[['Open', 'High', 'Low', 'Close', 'Volume']].astype(float)
+    return data
