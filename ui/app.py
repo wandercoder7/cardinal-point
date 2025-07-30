@@ -15,6 +15,8 @@ from backtesting.ui import run_backtest
 from utils.date_utils import get_current_time
 from utils.constants import nifty_200_tickers_yfinance
 from config.strategy_config import STRATEGY_CONFIG
+from ui.fibonacci_analysis import show_fibonacci_analysis
+from ui.computed_data import show_computed_data
 
 if __name__ == '__main__':
     current_time = get_current_time()
@@ -33,16 +35,8 @@ if __name__ == '__main__':
         stock_tickers, selected_analysis_timeframes, as_of_date = sidebar(app_mode)
         show_signals(stock_tickers, selected_analysis_timeframes, as_of_date)
     elif app_mode == "Fibonacci Analysis":
-        ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
-        timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
-        from ui.fibonacci_analysis import show_fibonacci_analysis
+        ticker, timeframe = sidebar(app_mode)
         show_fibonacci_analysis(ticker, timeframe)
     elif app_mode == "View Computed Data":
-        ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
-        timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
-        as_of_date = st.sidebar.date_input(
-            "Analysis as of Date",
-            value=pd.Timestamp.now().date()
-        )
-        from ui.computed_data import show_computed_data
+        ticker, timeframe, as_of_date = sidebar(app_mode)
         show_computed_data(ticker, timeframe, as_of_date)

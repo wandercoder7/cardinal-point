@@ -34,7 +34,7 @@ def get_end_date(as_of_date, interval):
     # for interval '1 Week'
     #  if as_of_date is in market hour then return as_of_date
     #  else return the last business friday before the as_of_date + 1 day
-    as_of_date = datetime(as_of_date.year, as_of_date.month, as_of_date.day, 0, 0, 0)
+    # as_of_date = datetime(as_of_date.year, as_of_date.month, as_of_date.day, 0, 0, 0)
 
     if interval == "1d":
         if is_market_time(as_of_date):

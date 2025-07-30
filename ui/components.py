@@ -4,6 +4,21 @@ from plotly.subplots import make_subplots
 import pandas as pd
 from utils.constants import nifty_50_tickers_yfinance, nifty_200_tickers_yfinance
 from config.strategy_config import STRATEGY_CONFIG
+from utils.date_utils import get_current_time
+from datetime import datetime
+
+def sidebar_date_time(name=None):
+    current_time = get_current_time()
+    as_of_date = st.sidebar.date_input(
+        "Analysis as of Date" if name is None else name,
+        value=current_time.date(),
+        key=f"date_{name}"
+    )
+    # add time input selector in the sidebar
+    time_input = st.sidebar.time_input('Select Time', value=current_time.time(), key=f"time_{name}")
+    # merge as_of date and time input
+    as_of_date = datetime.combine(as_of_date, time_input)
+    return as_of_date
 
 def sidebar_show_signals():
     selected_timeframes = st.sidebar.multiselect(
@@ -11,10 +26,9 @@ def sidebar_show_signals():
         list(STRATEGY_CONFIG.keys()),
         default=['1 Day']
     )
-    as_of_date = st.sidebar.date_input(
-        "Analysis as of Date",
-        value=pd.Timestamp.now().date()
-    )
+   
+    as_of_date = sidebar_date_time()
+
     stock_tickers_show_signals = st.sidebar.multiselect(
         "Select Indian Stocks for Analysis",
         nifty_200_tickers_yfinance,
@@ -23,6 +37,12 @@ def sidebar_show_signals():
     )
     
     return stock_tickers_show_signals, selected_timeframes, as_of_date
+
+def sidebar_computed_data():
+    ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
+    timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
+    as_of_date = sidebar_date_time()
+    return ticker, timeframe, as_of_date
 
 def sidebar_backtesting():
     default_ticker = "TCS.NS"
@@ -36,11 +56,17 @@ def sidebar_backtesting():
         nifty_50_tickers_yfinance,
         index=default_index
     )
-    backtest_start_date = st.sidebar.date_input("Backtest Start Date")
-    backtest_end_date = st.sidebar.date_input("Backtest End Date")
+
+    backtest_start_date = sidebar_date_time("Backtest Start Date")
+    backtest_end_date = sidebar_date_time("Backtest End Date")
     backtest_strategy_option = st.sidebar.selectbox("Select Strategy for Backtesting", ["EMA Crossover", "SMA Price Crossover", "RSI Oversold Reversal", "MACD Crossover"])
     run_backtest = st.sidebar.button("Run Backtest")
     return backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option, run_backtest
+
+def sidebar_fibo():
+    ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
+    timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
+    return ticker, timeframe    
 
 def sidebar(app_mode):
     
@@ -60,6 +86,13 @@ def sidebar(app_mode):
         backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option, run_backtest = sidebar_backtesting()
         stock_tickers = [backtest_ticker] # For consistency in the return value
         return stock_tickers, backtest_ticker, backtest_start_date, backtest_end_date, backtest_strategy_option, run_backtest, selected_analysis_timeframes
+    elif app_mode == "View Computed Data":
+        ticker, timeframe, as_of_date = sidebar_computed_data()
+        return ticker, timeframe, as_of_date
+    elif app_mode == "Fibonacci Analysis":
+        ticker = st.sidebar.selectbox("Select Stock", nifty_200_tickers_yfinance)
+        timeframe = st.sidebar.selectbox("Select Timeframe", list(STRATEGY_CONFIG.keys()), index=0)
+        return ticker, timeframe
 
 def get_signal_messages(latest_signals, latest_entry_levels):
     reasons = []
