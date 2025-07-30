@@ -26,10 +26,9 @@ def fetch_stock_data(ticker, period="1y", interval="1d", as_of_date=None):
     try:
         data = None
         if(as_of_date is not None):
-            start = get_start_date(period, as_of_date)
-            end = get_end_date(as_of_date, interval)
-            log.info(f"fetching data for {ticker} from {start} to {as_of_date} with interval {interval}")
-            data = yf.download(ticker, start=start, end=end, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
+            start = get_start_date(period, as_of_date).date()
+            end = get_end_date(as_of_date, interval).date()
+            data = get_ticker_date(ticker, start, end, interval, auto_adjust_data)
         else:
             log.info(f"fetching data for {ticker} with period {period} and interval {interval}")
             data = yf.download(ticker, period=period, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
@@ -73,3 +72,8 @@ def cleanup_columns(data):
     else:
         data = data[['Open', 'High', 'Low', 'Close', 'Volume']].astype(float)
     return data
+
+@st.cache_data
+def get_ticker_date(ticker, start, end, interval, auto_adjust_data):
+    log.info(f"fetching data for {ticker} from {start} to {end} with interval {interval}")
+    return yf.download(ticker, start=start, end=end, interval=interval, auto_adjust=auto_adjust_data, multi_level_index=False)
