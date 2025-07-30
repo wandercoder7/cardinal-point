@@ -4,10 +4,9 @@ from utils.data_fetching import fetch_stock_data
 from utils.calculations import calculate_indicators
 from utils.constants import TIMEFRAMES
 from config.strategy_config import STRATEGY_CONFIG
-import logging
+from utils.logger import get_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def show_computed_data(ticker, timeframe, as_of_date):
     """Display computed technical indicators and data for a given ticker and timeframe"""

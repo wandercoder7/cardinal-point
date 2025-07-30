@@ -4,10 +4,9 @@ from utils.data_fetching import fetch_stock_data
 from utils.date_utils import get_last_business_day, get_last_business_friday
 from utils.constants import TIMEFRAMES
 from datetime import datetime
-import logging
+from utils.logger import get_logger
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 class TestDataFetching(unittest.TestCase):
 
