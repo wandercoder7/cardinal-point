@@ -13,8 +13,6 @@ from ui.components import sidebar
 from ui.show_signals import show_signals
 from backtesting.ui import run_backtest
 from utils.date_utils import get_current_time
-from utils.constants import nifty_200_tickers_yfinance
-from config.strategy_config import STRATEGY_CONFIG
 from ui.fibonacci_analysis import show_fibonacci_analysis
 from ui.computed_data import show_computed_data
 

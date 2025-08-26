@@ -19,6 +19,8 @@ def get_start_date(period, as_of_date):
         start = start - timedelta(days=365)
     elif(period == "2y"):
         start = start - timedelta(days=730)
+    elif(period == "2y"):
+        start = start - timedelta(days=1095)
     elif(period == "6mo"):
         start = start - timedelta(days=183)
     elif(period == "5y"):
